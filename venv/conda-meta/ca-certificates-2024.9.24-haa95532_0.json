@@ -20,7 +20,22 @@
   "name": "ca-certificates",
   "package_tarball_full_path": "C:\\Users\\user\\anaconda3\\pkgs\\ca-certificates-2024.9.24-haa95532_0.conda",
   "paths_data": {
-    "paths": [],
+    "paths": [
+      {
+        "_path": "Library/ssl/cacert.pem",
+        "path_type": "hardlink",
+        "sha256": "189d3cf6d103185fba06d76c1af915263c6d42225481a1759e853b33ac857540",
+        "sha256_in_prefix": "189d3cf6d103185fba06d76c1af915263c6d42225481a1759e853b33ac857540",
+        "size_in_bytes": 234847
+      },
+      {
+        "_path": "Library/ssl/cert.pem",
+        "path_type": "hardlink",
+        "sha256": "189d3cf6d103185fba06d76c1af915263c6d42225481a1759e853b33ac857540",
+        "sha256_in_prefix": "189d3cf6d103185fba06d76c1af915263c6d42225481a1759e853b33ac857540",
+        "size_in_bytes": 234847
+      }
+    ],
     "paths_version": 1
   },
   "requested_spec": "None",

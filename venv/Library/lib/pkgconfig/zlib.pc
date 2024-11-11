@@ -1,8 +1,8 @@
-prefix=C:/Users/user/Desktop/YTtranscrptor/venv/Library
-exec_prefix=C:/Users/user/Desktop/YTtranscrptor/venv/Library
-libdir=C:/Users/user/Desktop/YTtranscrptor/venv/Library/lib
-sharedlibdir=C:/Users/user/Desktop/YTtranscrptor/venv/Library/lib
-includedir=C:/Users/user/Desktop/YTtranscrptor/venv/Library/include
+prefix=C:/Users/user/Desktop/Projects/YTtranscriptor/venv/Library
+exec_prefix=C:/Users/user/Desktop/Projects/YTtranscriptor/venv/Library
+libdir=C:/Users/user/Desktop/Projects/YTtranscriptor/venv/Library/lib
+sharedlibdir=C:/Users/user/Desktop/Projects/YTtranscriptor/venv/Library/lib
+includedir=C:/Users/user/Desktop/Projects/YTtranscriptor/venv/Library/include
 
 Name: zlib
 Description: zlib compression library
