@@ -1,5 +1,7 @@
-youtube_transcript_api
 streamlit
+youtube_transcript_api
 google-generativeai
 python-dotenv
 pathlib
+yt-dlp
+requests
