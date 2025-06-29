@@ -92,6 +92,18 @@ if st.button("📄 Generate Notes"):
             summary = generate_gemini_content(transcript, lang)
             if summary:
                 st.subheader("📝 Your Notes:")
-                st.write(summary)
+                
+                # Create the copy box using markdown + JS
+                copy_code = f"""
+                <div style="position: relative; border: 1px solid #ccc; border-radius: 10px; padding: 1rem; background-color: #f9f9f9;">
+                    <button onclick="navigator.clipboard.writeText(document.getElementById('notes-box').innerText)" 
+                            style="position: absolute; top: 10px; right: 10px; background: #eee; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                        📋 Copy
+                    </button>
+                    <div id="notes-box" style="white-space: pre-wrap; font-family: inherit;">{summary}</div>
+                </div>
+                """
+                st.markdown(copy_code, unsafe_allow_html=True)
+
             else:
                 st.warning("Gemini failed to generate the summary.")
