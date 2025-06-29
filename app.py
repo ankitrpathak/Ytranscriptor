@@ -4,6 +4,8 @@ import os
 import re
 import google.generativeai as genai
 from youtube_transcript_api import YouTubeTranscriptApi
+import yt_dlp
+import tempfile
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,21 +24,34 @@ def get_video_id(url):
     match = re.search(pattern, url)
     return match.group(1) if match else None
 
-# Retrieve transcript using youtube-transcript-api
+# Retrieve transcript using yt-dlp as <<youtube-transcript-api>> works on localhost because your local IP is not blocked.
+# On Streamlit Cloud, the IP range used for requests is often blocked by YouTube for scraping
 def extract_transcript_details(youtube_video_url):
     try:
-        video_id = get_video_id(youtube_video_url)
-        if not video_id:
-            st.error("Invalid YouTube URL format. Please try again.")
-            return None
-        
-        transcript_data = YouTubeTranscriptApi.get_transcript(video_id)
-        transcript = " ".join([entry["text"] for entry in transcript_data])
-        return transcript
+        ydl_opts = {
+            'skip_download': True,
+            'writesubtitles': True,
+            'writeautomaticsub': True,
+            'subtitleslangs': ['en'],
+            'quiet': True,
+            'forcejson': True
+        }
 
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(youtube_video_url, download=False)
+            captions = info.get("automatic_captions") or info.get("subtitles")
+            if captions and "en" in captions:
+                subtitle_url = captions["en"][0]["url"]
+                import requests
+                response = requests.get(subtitle_url)
+                return response.text
+            else:
+                st.warning("No English subtitles found for this video.")
+                return None
     except Exception as e:
-        st.error("Transcript not available. This may be due to:\n- No subtitles on the video\n- Video is private or region-blocked\n- YouTube’s transcript structure has changed")
+        st.error("Transcript extraction failed. Reason:\n\n" + str(e))
         return None
+
 
 def generate_gemini_content(transcript_text, prompt):
 
