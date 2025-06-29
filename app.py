@@ -5,6 +5,7 @@ import re
 import google.generativeai as genai
 import yt_dlp
 import requests
+import streamlit.components.v1 as components
 
 # Load environment variables
 load_dotenv()
@@ -92,18 +93,21 @@ if st.button("📄 Generate Notes"):
             summary = generate_gemini_content(transcript, lang)
             if summary:
                 st.subheader("📝 Your Notes:")
-                
-                # Create the copy box using markdown + JS
-                copy_code = f"""
-                <div style="position: relative; border: 1px solid #ccc; border-radius: 10px; padding: 1rem; background-color: #f9f9f9;">
-                    <button onclick="navigator.clipboard.writeText(document.getElementById('notes-box').innerText)" 
-                            style="position: absolute; top: 10px; right: 10px; background: #eee; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
-                        📋 Copy
-                    </button>
-                    <div id="notes-box" style="white-space: pre-wrap; font-family: inherit;">{summary}</div>
-                </div>
-                """
-                st.markdown(copy_code, unsafe_allow_html=True)
 
+                # Display in translucent grey box with copy button
+                escaped_summary = summary.replace('"', '&quot;')
+
+                components.html(f"""
+                    <div style="position: relative; border-radius: 10px; padding: 1rem; 
+                                background-color: rgba(100, 100, 100, 0.1); border: 1px solid #ccc; font-family: sans-serif;">
+                        <button onclick="navigator.clipboard.writeText(document.getElementById('notes-box').innerText); 
+                                         const btn = this; btn.innerText='✅ Copied!'; setTimeout(()=>btn.innerText='📋 Copy', 2000);"
+                                style="position: absolute; top: 10px; right: 10px; background: #f0f0f0; border: none; 
+                                       padding: 6px 10px; border-radius: 5px; cursor: pointer;">
+                            📋 Copy
+                        </button>
+                        <div id="notes-box" style="white-space: pre-wrap; font-size: 15px;">{escaped_summary}</div>
+                    </div>
+                """, height=350)
             else:
                 st.warning("Gemini failed to generate the summary.")
