@@ -10,8 +10,6 @@ import streamlit.components.v1 as components
 # Load environment variables
 load_dotenv()
 api_key = os.getenv("GOOGLE_API_KEY")
-
-# Configure Gemini
 genai.configure(api_key=api_key)
 
 # Prompts
@@ -35,7 +33,7 @@ def get_video_id(url):
     match = re.search(pattern, url)
     return match.group(1) if match else None
 
-# Extract transcript with yt-dlp
+# Extract subtitles using yt-dlp
 def extract_transcript_details(youtube_video_url):
     try:
         ydl_opts = {
@@ -54,7 +52,6 @@ def extract_transcript_details(youtube_video_url):
                 st.error("❌ No subtitles found for this video.")
                 return None, None
 
-            # Prefer English if available
             lang = "en" if "en" in captions else list(captions.keys())[0]
             st.info(f"Using subtitles in `{lang}`")
 
@@ -65,7 +62,7 @@ def extract_transcript_details(youtube_video_url):
         st.error(f"Transcript extraction failed.\n\n{e}")
         return None, None
 
-# Gemini summarizer
+# Generate summary using Gemini
 def generate_gemini_content(transcript_text, lang):
     try:
         model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
@@ -93,21 +90,4 @@ if st.button("📄 Generate Notes"):
             summary = generate_gemini_content(transcript, lang)
             if summary:
                 st.subheader("📝 Your Notes:")
-
-                # Display in translucent grey box with copy button
-                escaped_summary = summary.replace('"', '&quot;')
-
-                components.html(f"""
-                    <div style="position: relative; border-radius: 10px; padding: 1rem; 
-                                background-color: rgba(100, 100, 100, 0.1); border: 1px solid #ccc; font-family: sans-serif;">
-                        <button onclick="navigator.clipboard.writeText(document.getElementById('notes-box').innerText); 
-                                         const btn = this; btn.innerText='✅ Copied!'; setTimeout(()=>btn.innerText='📋 Copy', 2000);"
-                                style="position: absolute; top: 10px; right: 10px; background: #f0f0f0; border: none; 
-                                       padding: 6px 10px; border-radius: 5px; cursor: pointer;">
-                            📋 Copy
-                        </button>
-                        <div id="notes-box" style="white-space: pre-wrap; font-size: 15px;">{escaped_summary}</div>
-                    </div>
-                """, height=350)
-            else:
-                st.warning("Gemini failed to generate the summary.")
+                st.text_area("Copy your notes below:", summary, height=300)
