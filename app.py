@@ -5,7 +5,10 @@ import re
 import google.generativeai as genai
 import yt_dlp
 import requests
-import streamlit.components.v1 as components
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
 
 # Load environment variables
 load_dotenv()
@@ -49,17 +52,16 @@ def extract_transcript_details(youtube_video_url):
             captions = info.get("automatic_captions") or info.get("subtitles")
 
             if not captions:
-                st.error("❌ No subtitles found for this video.")
                 return None, None
 
             lang = "en" if "en" in captions else list(captions.keys())[0]
-            st.info(f"Using subtitles in `{lang}`")
+            logging.info(f"Using subtitles in: {lang}")
 
             subtitle_url = captions[lang][0]["url"]
             response = requests.get(subtitle_url)
             return response.text, lang
     except Exception as e:
-        st.error(f"Transcript extraction failed.\n\n{e}")
+        logging.error(f"Transcript extraction failed: {e}")
         return None, None
 
 # Generate summary using Gemini
@@ -70,7 +72,7 @@ def generate_gemini_content(transcript_text, lang):
         response = model.generate_content(prompt + transcript_text)
         return response.text
     except Exception as e:
-        st.error(f"Gemini API failed: {e}")
+        logging.error(f"Gemini API failed: {e}")
         return None
 
 # Streamlit UI
@@ -80,14 +82,23 @@ st.title("🎙️ Ytranscriptor: YouTube Transcript to Notes")
 youtube_link = st.text_input("🔗 Enter YouTube Video Link:")
 
 video_id = get_video_id(youtube_link)
+
 if video_id:
     st.image(f"http://img.youtube.com/vi/{video_id}/0.jpg", use_container_width=True)
 
-if st.button("📄 Generate Notes"):
-    with st.spinner("Fetching subtitles and generating notes..."):
-        transcript, lang = extract_transcript_details(youtube_link)
-        if transcript:
-            summary = generate_gemini_content(transcript, lang)
-            if summary:
-                st.subheader("📝 Your Notes:")
-                st.text_area("Here you go:", summary, height=300)
+    if st.button("📄 Generate Notes"):
+        with st.spinner("Fetching subtitles and generating notes..."):
+            transcript, lang = extract_transcript_details(youtube_link)
+            if transcript:
+                summary = generate_gemini_content(transcript, lang)
+                if summary:
+                    st.subheader("📝 Your Notes:")
+                    summary_lines = summary.count('\n') + 5
+                    st.text_area("", summary, height=min(summary_lines * 20, 1000))
+                else:
+                    st.error("🚧 Sorry! Our summarization service is temporarily unavailable. Please try again later.")
+            else:
+                st.error("❌ Transcript unavailable or video has no subtitles.")
+else:
+    if youtube_link:
+        st.warning("⚠️ Please enter a valid YouTube link.")
