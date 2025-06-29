@@ -40,13 +40,17 @@ def extract_transcript_details(youtube_video_url):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_video_url, download=False)
             captions = info.get("automatic_captions") or info.get("subtitles")
+            
+            # Debug output to see what subtitle options are available
+            st.json(captions)
+
             if captions and "en" in captions:
                 subtitle_url = captions["en"][0]["url"]
                 import requests
                 response = requests.get(subtitle_url)
                 return response.text
             else:
-                st.warning("No English subtitles found for this video.")
+                st.warning("No English subtitles found. Available captions keys: " + str(captions.keys() if captions else "None"))
                 return None
     except Exception as e:
         st.error("Transcript extraction failed. Reason:\n\n" + str(e))
