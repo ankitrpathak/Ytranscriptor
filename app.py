@@ -90,4 +90,4 @@ if st.button("📄 Generate Notes"):
             summary = generate_gemini_content(transcript, lang)
             if summary:
                 st.subheader("📝 Your Notes:")
-                st.text_area("Copy your notes below:", summary, height=300)
+                st.text_area("Here you go:", summary, height=300)
